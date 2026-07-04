@@ -112,6 +112,69 @@ def load_api_key(preferred: str | None = None) -> tuple[str, str] | tuple[None, 
     return None, None
 
 
+def local_available() -> bool:
+    """True if faster-whisper is importable (local GPU/CPU transcription)."""
+    import importlib.util
+    return importlib.util.find_spec("faster_whisper") is not None
+
+
+def resolve_backend(preferred: str | None = None) -> tuple[str, str | None] | tuple[None, None]:
+    """Decide which Whisper backend to use.
+
+    Priority when nothing is forced: local faster-whisper first (free, no key,
+    runs on the GPU), then Groq, then OpenAI. Local needs no api key.
+    """
+    if preferred == "local":
+        return "local", None
+    if preferred in ("groq", "openai"):
+        return load_api_key(preferred)
+
+    # auto: prefer local, fall back to cloud only if local isn't installed
+    if local_available():
+        return "local", None
+    return load_api_key(None)
+
+
+def transcribe_local(video_path: str) -> list[dict]:
+    """Transcribe locally with faster-whisper on the GPU — no cloud, no cost.
+
+    large-v3 / cuda / float16, beam_size=5, VAD. Falls back to CPU/int8 if CUDA
+    isn't usable. Language is auto-detected unless WATCH_WHISPER_LANG is set.
+    Returns segments in the same shape as the cloud path.
+    """
+    from faster_whisper import WhisperModel
+
+    model_size = os.environ.get("WATCH_WHISPER_MODEL", "large-v3")
+    device = os.environ.get("WATCH_WHISPER_DEVICE", "cuda")
+    compute_type = os.environ.get("WATCH_WHISPER_COMPUTE", "float16")
+    lang = os.environ.get("WATCH_WHISPER_LANG") or None
+
+    print(f"[watch] local whisper: loading {model_size} on {device} ({compute_type})…", file=sys.stderr)
+    try:
+        model = WhisperModel(model_size, device=device, compute_type=compute_type)
+    except Exception as exc:
+        print(f"[watch] {device}/{compute_type} unavailable ({exc}); falling back to cpu/int8", file=sys.stderr)
+        model = WhisperModel(model_size, device="cpu", compute_type="int8")
+
+    segments_iter, info = model.transcribe(video_path, language=lang, beam_size=5, vad_filter=True)
+    print(
+        f"[watch] detected language: {info.language} (p={info.language_probability:.2f})",
+        file=sys.stderr,
+    )
+
+    out: list[dict] = []
+    for seg in segments_iter:
+        text = (seg.text or "").strip()
+        if not text:
+            continue
+        out.append({
+            "start": round(float(seg.start or 0.0), 2),
+            "end": round(float(seg.end or 0.0), 2),
+            "text": text,
+        })
+    return out
+
+
 def extract_audio(video_path: str, out_path: Path) -> Path:
     """Extract mono 16kHz 64kbps mp3 — ~480 kB/min, fits any Whisper limit."""
     if shutil.which("ffmpeg") is None:

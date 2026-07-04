@@ -113,7 +113,16 @@ def _read_env_key(name: str) -> str | None:
     return None
 
 
+def _local_whisper_available() -> bool:
+    """True if faster-whisper is importable — the local (no-key) backend."""
+    import importlib.util
+    return importlib.util.find_spec("faster_whisper") is not None
+
+
 def _have_api_key() -> tuple[bool, str | None]:
+    # Local faster-whisper counts as a full backend (variant A) — no cloud key needed.
+    if _local_whisper_available():
+        return True, "local"
     if _read_env_key("GROQ_API_KEY"):
         return True, "groq"
     if _read_env_key("OPENAI_API_KEY"):
