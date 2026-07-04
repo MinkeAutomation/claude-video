@@ -7,6 +7,7 @@ transcribe.py can parse them without needing Whisper.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -15,6 +16,22 @@ from urllib.parse import urlparse
 
 
 VIDEO_EXTS = {".mp4", ".mkv", ".webm", ".mov", ".m4v", ".avi", ".flv", ".wmv"}
+
+
+def _sabr_args() -> list[str]:
+    """YouTube SABR / bot-check safeguard (from Taelo Kim's fork).
+
+    Modern yt-dlp usually bypasses YouTube's SABR protocol on its own, but
+    forcing non-web player clients keeps downloads working if YouTube tightens
+    again (the HTTP 403 / "fragment not found" failure). Belt-and-suspenders —
+    harmless when not needed. Optionally attach browser cookies by setting
+    WATCH_COOKIES_BROWSER=chrome|firefox|edge|brave|safari.
+    """
+    args = ["--extractor-args", "youtube:player_client=tv,web_safari,mweb"]
+    browser = os.environ.get("WATCH_COOKIES_BROWSER")
+    if browser:
+        args += ["--cookies-from-browser", browser]
+    return args
 
 
 def is_url(source: str) -> bool:
@@ -71,6 +88,7 @@ def fetch_captions(url: str, out_dir: Path) -> dict:
     output_template = str(out_dir / "video.%(ext)s")
     cmd = [
         "yt-dlp",
+        *_sabr_args(),
         "--skip-download",
         "--write-info-json",
         "--write-subs",
@@ -126,6 +144,7 @@ def download_url(
     fmt = "ba/bestaudio" if audio_only else "bv*[height<=720]+ba/b[height<=720]/bv+ba/b"
     cmd = [
         "yt-dlp",
+        *_sabr_args(),
         "-N", "8",
         "-f", fmt,
         "--merge-output-format", "mp4",

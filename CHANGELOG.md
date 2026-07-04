@@ -9,6 +9,7 @@ All notable changes to `/watch` are documented here.
 - `setup.py` now counts a local `faster-whisper` install as a valid backend, so keyless local installs report `ready` instead of `needs_key`.
 - `examples/obsidian-note-output.md` — optional, vault-agnostic instruction block to file `/watch` output as a structured Markdown note (properties, 🔴🟡🟢 link markers, description, timestamped transcript, embedded key frames). Core skill stays general.
 - README: documents both transcription variants (local / cloud) and the optional note output.
+- **SABR / 403 safeguard** (from Taelo Kim's fork). `download.py` forces non-web player clients (`--extractor-args youtube:player_client=tv,web_safari,mweb`) on video download and caption fetch, with optional browser cookies via `WATCH_COOKIES_BROWSER`. Modern yt-dlp usually handles SABR on its own, so this is belt-and-suspenders insurance for when YouTube tightens again — harmless when not needed.
 
 ## [0.2.0] — 2026-06-29
 
