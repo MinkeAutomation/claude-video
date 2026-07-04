@@ -161,16 +161,37 @@ On the first `/watch` call, the skill runs `scripts/setup.py --check`. If `ffmpe
 
 After setup, preflight is silent and `/watch` just works. The check is a sub-100ms lookup, so it doesn't slow you down on subsequent runs.
 
-## Bring your own keys
+## Transcription: two variants (local or cloud)
 
-Captions cover the majority of public videos for free. The Whisper fallback only kicks in when a video genuinely has no caption track — typically local files, TikToks, some Vimeos, and the occasional caption-less YouTube upload.
+Captions cover the majority of public videos for free. When a video has **no** caption track (local files, TikToks, some Vimeos, the occasional caption-less YouTube upload), `/watch` transcribes the audio — and you pick **how**:
 
-| Capability | What you need | Cost |
-|------------|---------------|------|
-| Download + native captions | `yt-dlp` + `ffmpeg` | Free |
-| Whisper fallback (preferred) | [Groq API key](https://console.groq.com/keys) — `whisper-large-v3` | Cheap, fast |
-| Whisper fallback (alt) | [OpenAI API key](https://platform.openai.com/api-keys) — `whisper-1` | Standard pricing |
-| Disable Whisper entirely | `--no-whisper` | Free, frames-only when no captions |
+| Variant | What you need | Cost | Best for |
+|---------|---------------|------|----------|
+| Native captions (always tried first) | `yt-dlp` + `ffmpeg` | Free | any captioned video |
+| **A) Local Whisper** (default when installed) | `pip install faster-whisper` — runs `large-v3` on your GPU (CPU fallback) | **Free, private, no key** | privacy, no API bills, offline |
+| B) Cloud Whisper — Groq | [Groq API key](https://console.groq.com/keys) — `whisper-large-v3` | Cheap, fast | no GPU, simplest start |
+| B) Cloud Whisper — OpenAI | [OpenAI API key](https://platform.openai.com/api-keys) — `whisper-1` | Standard pricing | fallback |
+| Disable Whisper | `--no-whisper` | Free, frames-only when no captions | you only care about visuals |
+
+**No configuration needed to choose:** if `faster-whisper` is importable, `/watch` uses the local backend automatically (no key required). Otherwise it falls back to whichever cloud key is set. Force one with `--whisper local|groq|openai`.
+
+### Variant A — local transcription (no cloud, no key)
+```bash
+pip install faster-whisper            # or: uv tool install faster-whisper
+```
+That's it — the next `/watch` on a caption-less video transcribes on your GPU, nothing leaves the machine. Tuning via env vars (all optional):
+
+| Env var | Default | Purpose |
+|---------|---------|---------|
+| `WATCH_WHISPER_MODEL` | `large-v3` | model size |
+| `WATCH_WHISPER_DEVICE` | `cuda` | `cuda` or `cpu` |
+| `WATCH_WHISPER_COMPUTE` | `float16` | e.g. `int8` to cut VRAM (~3 GB vs ~4.5 GB) |
+| `WATCH_WHISPER_LANG` | *(auto-detect)* | force a language code |
+
+> On an 8 GB GPU, set `WATCH_WHISPER_COMPUTE=int8` so `large-v3` fits alongside other apps.
+
+### Variant B — cloud transcription
+Set a key in `~/.config/watch/.env` (`GROQ_API_KEY=` preferred, or `OPENAI_API_KEY=`). Use this if you have no GPU or want the simplest possible setup.
 
 ## Usage
 
@@ -195,10 +216,14 @@ Other knobs (passed to `scripts/watch.py`):
 - `--max-frames N` — lower the frame cap for a tighter token budget.
 - `--resolution W` — bump frame width to 1024 px when Claude needs to read on-screen text (slides, terminals, code).
 - `--fps F` — override the auto-fps calculation (still capped at 2 fps).
-- `--whisper groq|openai` — force a specific Whisper backend.
+- `--whisper local|groq|openai` — force a specific Whisper backend. Default: prefer local `faster-whisper` (GPU, free, no key) if installed, else Groq, else OpenAI.
 - `--no-whisper` — disable transcription entirely; frames only.
 - `--no-dedup` — keep near-duplicate frames. By default a frame-delta pass drops frames that are visually near-identical to the one before them (held slides, static screen recordings, paused video), so the frame budget is spent on distinct content; this flag turns that off.
 - `--out-dir DIR` — keep working files somewhere specific (default: auto-generated tmp dir).
+
+## Optional: structured Obsidian / note output
+
+By default `/watch` just answers your question. If you'd rather have it **file each video as a rich Markdown note** — frontmatter properties, a link list with 🔴🟡🟢 importance markers, the description, a timestamped transcript, and the key frames embedded — see [`examples/obsidian-note-output.md`](examples/obsidian-note-output.md). It's an optional, vault-agnostic instruction block you can drop into your prompt or `CLAUDE.md`. Works with or without Obsidian; skip it and `/watch` behaves normally.
 
 ## Limits
 

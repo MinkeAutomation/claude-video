@@ -2,6 +2,14 @@
 
 All notable changes to `/watch` are documented here.
 
+## [Unreleased] — MinkeAutomation fork
+
+### Added
+- **Local Whisper backend (variant A).** `--whisper local` runs `faster-whisper` (`large-v3`, GPU `float16`, CPU/`int8` fallback, VAD) — free, private, no API key, nothing leaves the machine. When `faster-whisper` is importable it becomes the **default** backend (`resolve_backend` prefers local, else Groq/OpenAI). Tunable via `WATCH_WHISPER_MODEL/DEVICE/COMPUTE/LANG`. Cloud path unchanged — purely additive.
+- `setup.py` now counts a local `faster-whisper` install as a valid backend, so keyless local installs report `ready` instead of `needs_key`.
+- `examples/obsidian-note-output.md` — optional, vault-agnostic instruction block to file `/watch` output as a structured Markdown note (properties, 🔴🟡🟢 link markers, description, timestamped transcript, embedded key frames). Core skill stays general.
+- README: documents both transcription variants (local / cloud) and the optional note output.
+
 ## [0.2.0] — 2026-06-29
 
 ### Added
