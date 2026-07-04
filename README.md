@@ -227,6 +227,7 @@ By default `/watch` just answers your question. Two optional, vault-agnostic ins
 
 - [`examples/obsidian-note-output.md`](examples/obsidian-note-output.md) — file each video as a rich Markdown note: frontmatter properties, a link list with 🔴🟡🟢 importance markers, the description, a timestamped transcript, and the key frames embedded.
 - [`examples/thorough-extraction.md`](examples/thorough-extraction.md) — capture *everything* (visual-only details, links/assets from transcript + description + on-screen frames) and **actively flag whatever couldn't be resolved** (truncated links, gated assets, referenced-but-missing repos/downloads) so nothing slips silently.
+- [`examples/channel-highwatermark.md`](examples/channel-highwatermark.md) — follow a *channel* incrementally: keep a per-channel, per-platform highwatermark so "fetch the newest from X" only processes genuinely new uploads, never re-pulling or missing any.
 
 ## Limits
 
