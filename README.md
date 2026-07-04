@@ -221,9 +221,12 @@ Other knobs (passed to `scripts/watch.py`):
 - `--no-dedup` — keep near-duplicate frames. By default a frame-delta pass drops frames that are visually near-identical to the one before them (held slides, static screen recordings, paused video), so the frame budget is spent on distinct content; this flag turns that off.
 - `--out-dir DIR` — keep working files somewhere specific (default: auto-generated tmp dir).
 
-## Optional: structured Obsidian / note output
+## Optional: knowledge-base workflows
 
-By default `/watch` just answers your question. If you'd rather have it **file each video as a rich Markdown note** — frontmatter properties, a link list with 🔴🟡🟢 importance markers, the description, a timestamped transcript, and the key frames embedded — see [`examples/obsidian-note-output.md`](examples/obsidian-note-output.md). It's an optional, vault-agnostic instruction block you can drop into your prompt or `CLAUDE.md`. Works with or without Obsidian; skip it and `/watch` behaves normally.
+By default `/watch` just answers your question. Two optional, vault-agnostic instruction blocks turn it into a knowledge-capture tool — drop either into your prompt or `CLAUDE.md`, or skip them and `/watch` behaves normally:
+
+- [`examples/obsidian-note-output.md`](examples/obsidian-note-output.md) — file each video as a rich Markdown note: frontmatter properties, a link list with 🔴🟡🟢 importance markers, the description, a timestamped transcript, and the key frames embedded.
+- [`examples/thorough-extraction.md`](examples/thorough-extraction.md) — capture *everything* (visual-only details, links/assets from transcript + description + on-screen frames) and **actively flag whatever couldn't be resolved** (truncated links, gated assets, referenced-but-missing repos/downloads) so nothing slips silently.
 
 ## Limits
 
