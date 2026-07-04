@@ -11,6 +11,9 @@ All notable changes to `/watch` are documented here.
 - README: documents both transcription variants (local / cloud) and the optional note output.
 - **SABR / 403 safeguard** (from Taelo Kim's fork). `download.py` forces non-web player clients (`--extractor-args youtube:player_client=tv,web_safari,mweb`) on video download and caption fetch, with optional browser cookies via `WATCH_COOKIES_BROWSER`. Modern yt-dlp usually handles SABR on its own, so this is belt-and-suspenders insurance for when YouTube tightens again — harmless when not needed.
 
+### Fixed
+- **Windows crash on report output.** `watch.py` now forces UTF-8 on stdout/stderr. On a cp1252 Windows console the report's arrows/emoji (e.g. the `→` in focus-range output with `--start/--end`) raised `UnicodeEncodeError` and aborted the run after frames were already extracted.
+
 ## [0.2.0] — 2026-06-29
 
 ### Added

@@ -12,6 +12,15 @@ import tempfile
 from pathlib import Path
 
 
+# Windows consoles default to cp1252 and crash on the arrows/emoji in the report
+# (e.g. the "→" in focus-range output). Force UTF-8 so /watch works everywhere.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
+
 SCRIPT_DIR = Path(__file__).parent.resolve()
 sys.path.insert(0, str(SCRIPT_DIR))
 
