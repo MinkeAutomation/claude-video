@@ -1,8 +1,10 @@
 # /watch
 
+**🇩🇪 [Deutsche Version](README.de.md)**
+
 **Give Claude the ability to watch any video.**
 
-> **This is a fork** of Brad Bonanno's excellent [`claude-video`](https://github.com/bradautomates/claude-video) (MIT). It adds an **optional local Whisper backend** (`faster-whisper`, runs `large-v3` on your GPU — free, private, no API key), an optional SABR/403 download safeguard, a Windows encoding fix, and a few optional knowledge-base instruction blocks (Obsidian note output, thorough extraction, channel highwatermark). **All credit for the original tool goes to Brad** — see the attribution at the bottom. Fork maintained by [MinkeAutomation](https://github.com/MinkeAutomation).
+> **This is a fork** of Brad Bonanno's excellent [`claude-video`](https://github.com/bradautomates/claude-video) (MIT). It adds an **optional local Whisper backend** (`faster-whisper`, runs `large-v3` on your GPU: free, private, no API key), an optional SABR/403 download safeguard, a Windows encoding fix, and a few optional knowledge-base instruction blocks (Obsidian note output, thorough extraction, channel highwatermark). **All credit for the original tool goes to Brad** (see the attribution at the bottom). Fork maintained by [MinkeAutomation](https://github.com/MinkeAutomation).
 
 Claude Code (recommended — auto-updates via marketplace):
 ```

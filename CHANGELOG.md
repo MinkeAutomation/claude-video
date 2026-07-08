@@ -1,5 +1,7 @@
 # Changelog
 
+**🇩🇪 [Deutsche Version](CHANGELOG.de.md)**
+
 All notable changes to `/watch` are documented here.
 
 ## [Unreleased] — MinkeAutomation fork
