@@ -21,19 +21,24 @@ VIDEO_EXTS = {".mp4", ".mkv", ".webm", ".mov", ".m4v", ".avi", ".flv", ".wmv"}
 def _sabr_args() -> list[str]:
     """YouTube SABR / bot-check safeguard (from Taelo Kim's fork).
 
-    Modern yt-dlp usually bypasses YouTube's SABR protocol on its own, but
-    forcing non-web player clients keeps downloads working if YouTube tightens
-    again (the HTTP 403 / "fragment not found" failure). Belt-and-suspenders —
-    harmless when not needed. Optionally attach browser cookies by setting
+    Modern yt-dlp usually bypasses YouTube's SABR protocol on its own, so no
+    player client is forced by default. Set WATCH_PLAYER_CLIENTS to bring the
+    old safeguard back if YouTube tightens again (the HTTP 403 / "fragment not
+    found" failure), e.g. WATCH_PLAYER_CLIENTS=tv,web_safari,mweb. Optionally
+    attach browser cookies by setting
     WATCH_COOKIES_BROWSER=chrome|firefox|edge|brave|safari.
+
+    Measured 19.08.2026 on u2v17HBnhh8: forcing tv,web_safari,mweb left a
+    single 640x360 format and no captions, because those clients half-succeed
+    and yt-dlp never falls through to a better one. Without the forced list
+    yt-dlp picked android vr on its own and offered up to 3840x2160 plus the
+    German auto captions on the first try. Appending android to the list does
+    NOT help, that was tried first and changed nothing.
     """
-    # android als letzter Rueckfall (ergaenzt 19.08.2026): an einem Abend sind zwei
-    # Faelle aufgetreten, in denen tv, web_safari und mweb alle ein PO-Token
-    # verlangten. Einmal blieb nur 360p uebrig, einmal meldete yt-dlp faelschlich
-    # "no captions", obwohl deutsche Auto-Captions vorhanden waren. Ueber den
-    # android-Client waren beide sofort erreichbar. Er steht bewusst am Ende, die
-    # bisherige Reihenfolge bleibt damit erste Wahl.
-    args = ["--extractor-args", "youtube:player_client=tv,web_safari,mweb,android"]
+    args: list[str] = []
+    clients = os.environ.get("WATCH_PLAYER_CLIENTS")
+    if clients:
+        args += ["--extractor-args", f"youtube:player_client={clients}"]
     browser = os.environ.get("WATCH_COOKIES_BROWSER")
     if browser:
         args += ["--cookies-from-browser", browser]
