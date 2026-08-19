@@ -7,6 +7,7 @@ Alle nennenswerten Änderungen an `/watch` sind hier dokumentiert.
 ## [Unreleased] - MinkeAutomation-Fork
 
 ### Hinzugefügt
+- **`android` als letzter Rueckfall unter den Player-Clients.** `download.py` ruft yt-dlp bisher mit `player_client=tv,web_safari,mweb` auf. Am 19.08.2026 verlangten an einem Abend zweimal alle 3 ein PO-Token: einmal blieb nur 360p uebrig, einmal meldete yt-dlp faelschlich „no captions", obwohl deutsche Auto-Captions vorhanden waren. Ueber den android-Client waren beide sofort erreichbar. Er steht bewusst am Ende, die bisherige Reihenfolge bleibt erste Wahl, und die Sprachlogik (`--sub-langs en.*`) ist unveraendert.
 - **Lokales Whisper-Backend (Variante A).** `--whisper local` führt `faster-whisper` aus (`large-v3`, GPU `float16`, CPU/`int8`-Fallback, VAD): kostenlos, privat, kein API-Key, nichts verlässt die Maschine. Wenn `faster-whisper` importierbar ist, wird es zum **Standard**-Backend (`resolve_backend` bevorzugt local, sonst Groq/OpenAI). Justierbar über `WATCH_WHISPER_MODEL/DEVICE/COMPUTE/LANG`. Der Cloud-Pfad bleibt unverändert, rein additiv.
 - `setup.py` zählt jetzt eine lokale `faster-whisper`-Installation als gültiges Backend, sodass keylose lokale Installationen `ready` statt `needs_key` melden.
 - `examples/obsidian-note-output.md` - optionaler, vault-agnostischer Instruktionsblock, um die `/watch`-Ausgabe als strukturierte Markdown-Notiz abzulegen (Eigenschaften, 🔴🟡🟢-Link-Marker, Beschreibung, Transkript mit Zeitmarken, eingebettete Schlüssel-Frames). Der Kern-Skill bleibt allgemein.

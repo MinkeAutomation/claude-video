@@ -27,7 +27,13 @@ def _sabr_args() -> list[str]:
     harmless when not needed. Optionally attach browser cookies by setting
     WATCH_COOKIES_BROWSER=chrome|firefox|edge|brave|safari.
     """
-    args = ["--extractor-args", "youtube:player_client=tv,web_safari,mweb"]
+    # android als letzter Rueckfall (ergaenzt 19.08.2026): an einem Abend sind zwei
+    # Faelle aufgetreten, in denen tv, web_safari und mweb alle ein PO-Token
+    # verlangten. Einmal blieb nur 360p uebrig, einmal meldete yt-dlp faelschlich
+    # "no captions", obwohl deutsche Auto-Captions vorhanden waren. Ueber den
+    # android-Client waren beide sofort erreichbar. Er steht bewusst am Ende, die
+    # bisherige Reihenfolge bleibt damit erste Wahl.
+    args = ["--extractor-args", "youtube:player_client=tv,web_safari,mweb,android"]
     browser = os.environ.get("WATCH_COOKIES_BROWSER")
     if browser:
         args += ["--cookies-from-browser", browser]
